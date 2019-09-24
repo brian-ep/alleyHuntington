@@ -4,8 +4,12 @@
 
 //	Project headers
 #include "POP.h"
-#include "tNode.h"
 #include "SceneSettings.h"
+#include "tNode.h"
+
+//	Addons
+#include "ofxKinectForWindows2.h"
+#include "ofxOpenCv.h"
 
 class ofApp : public ofBaseApp{
 
@@ -52,4 +56,17 @@ public:
 
 	//	Images
 	ofImage paperImg;
+
+	/////////////////////////////////////////////////////////////
+	//	Kinect
+	ofxKFW2::Device kinect;
+
+	//	Open CV
+	ofxCvGrayscaleImage grayImage; // grayscale depth image
+	ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
+	ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
+	ofxCvGrayscaleImage kDataImg;
+
+	int nearThreshold;
+	int farThreshold;
 };

@@ -36,9 +36,41 @@ void ofApp::setup(){
 	//	Images
 	paperImg.load("images/paper.jpg");
 
+	//	POP
+	pop.setup(256 * 128);
+
+	ofFbo::Settings s;
+	s.internalformat = GL_RGBA32F_ARB;
+	s.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+	s.minFilter = GL_NEAREST;
+	s.maxFilter = GL_NEAREST;
+	s.wrapModeHorizontal = GL_CLAMP;
+	s.wrapModeVertical = GL_CLAMP;
+	s.width = width;
+	s.height = height;
+	s.numColorbuffers = 1;
+	popBuffer.allocate(s);
+
+	popBuffer.begin();
+	ofClear(0);
+	popBuffer.end();
+
 	//	Create assets
 	createColorPools();
     createNewTree();
+
+	//	CV
+	grayImage.allocate(512, 424);
+	grayThreshNear.allocate(512, 424);
+	grayThreshFar.allocate(512, 424);
+	kDataImg.allocate(width, height);
+
+	nearThreshold = 5;
+	farThreshold = 0;
+
+	//	Kinect
+	kinect.open();
+	kinect.initDepthSource();
 }
 
 //--------------------------------------------------------------
@@ -54,8 +86,35 @@ void ofApp::update(){
 	scene->windAngle += 0.001 * ofNoise(1.0);
 
 	//	Update tree
-	tree->windForce = sin(scene->windAngle) * 0.02;
+	tree->windForce = sin(scene->windAngle) * 0.01;
 	tree->update();
+
+	///////////////////////////////////////////////////////////
+	//	Kinect
+	kinect.update();
+
+	//	CV
+	if (kinect.isFrameNew())
+	{
+		grayImage.setFromPixels(kinect.getDepthSource()->getPixels());
+
+		grayThreshNear = grayImage;
+		grayThreshFar = grayImage;
+		grayThreshNear.threshold(nearThreshold, true);
+		grayThreshFar.threshold(farThreshold);
+		cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+
+		grayImage.flagImageChanged();
+
+		kDataImg.scaleIntoMe(grayImage, CV_INTER_LINEAR);
+		kDataImg.updateTexture();
+
+		//	Update POP interaction data
+		pop.updateKinectData(kDataImg.getTexture());
+	}
+
+	//	Update POP
+	pop.update();
 }
 
 //--------------------------------------------------------------
@@ -70,17 +129,28 @@ void ofApp::draw(){
 
 	//	Draw tree
 	treeBuffer.begin();
-	ofBackgroundGradient(ofColor(255, 255, 255, 1), ofColor(255, 255, 255, 1));
+	ofBackgroundGradient(ofColor(255, 255, 255, 2), ofColor(255, 255, 255, 2));
     tree->draw();
 	treeBuffer.end();
 
 	//	Draw forest
 	forestBuffer.begin();
-	if(ofGetFrameNum() % 30 == 29)  ofBackgroundGradient(ofColor(0, 54, 104, 1), ofColor(0, 8, 13, 1));
+	if(ofGetFrameNum() % 30 == 29)  ofBackgroundGradient(ofColor(0, 54, 104, 1), ofColor(0, 8, 13, 1)); 
 	forestBuffer.end();
 
 	forestBuffer.draw(0, 0);
 	treeBuffer.draw(0, 0);
+
+	//	Kinect data
+	//kDataImg.draw(0, 0);
+
+	//	Rain
+	ofSetColor(255);
+	popBuffer.begin();
+	ofBackgroundGradient(ofColor(37, 27, 52, 8), ofColor(8, 4, 13, 8));
+	pop.draw();
+	popBuffer.end();
+	popBuffer.draw(0, 0);
 }
 
 //--------------------------------------------------------------
