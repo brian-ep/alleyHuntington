@@ -12,6 +12,7 @@ uniform sampler2DRect kData;
 //  uniforms
 uniform vec2 mouse;
 uniform float elapsed;
+uniform float time;
 uniform vec2 res;
 
 //  attributes
@@ -67,9 +68,9 @@ void main()
     vec3 force = vec3(0.0);
 
     //  Noise
-    float angle = noise(vec3(pos.x * 10.0, pos.y * 10.0, 1.0)) * TWO_PI * 4.0;
+    float angle = noise(vec3(pos.x * 0.02 + 0.1 * time, pos.y * 0.02, 1.0)) * TWO_PI * 0.5;
     vec3 dir = vec3(cos(angle), sin(angle), 0);
-    force += 128.0 * dir;
+    force += 256.0 * dir;
 
     //  gravity
     force -= vec3(0.0, 20.0 * 9.82, 0.0);
@@ -79,9 +80,9 @@ void main()
     force *= variance;
 
     //  accelerate
-    vel += 0.1 * force;
+    vel += 0.016 * force;
 
-    vel.y = -200.0 * variance;
+    vel.y = -150.0 * variance;
 
     //  move
     pos += elapsed * vel;
@@ -108,7 +109,7 @@ void main()
     vel *= 0.995;
 
     //  Interaction
-    if(kVal == 1.0) col.a = 0.75;
+    if(kVal == 1.0) col.a = 0.75  * clamp(2.0 * variance, 0.0, 1.0);
     else col.a *= 0.995 * clamp(2.0 * variance, 0.0, 1.0);
     
     posOut = vec4(pos, 1.0);

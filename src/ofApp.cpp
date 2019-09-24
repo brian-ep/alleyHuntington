@@ -36,8 +36,13 @@ void ofApp::setup(){
 	//	Images
 	paperImg.load("images/paper.jpg");
 
+	//	Create assets
+	createColorPools();
+	createNewTree();
+
 	//	POP
-	pop.setup(256 * 128);
+	pop.setup(512 * 512);
+	pop.updateColorPool(scene->leaf_colors);
 
 	ofFbo::Settings s;
 	s.internalformat = GL_RGBA32F_ARB;
@@ -54,10 +59,6 @@ void ofApp::setup(){
 	popBuffer.begin();
 	ofClear(0);
 	popBuffer.end();
-
-	//	Create assets
-	createColorPools();
-    createNewTree();
 
 	//	CV
 	grayImage.allocate(512, 424);
@@ -86,7 +87,7 @@ void ofApp::update(){
 	scene->windAngle += 0.001 * ofNoise(1.0);
 
 	//	Update tree
-	tree->windForce = sin(scene->windAngle) * 0.01;
+	tree->windForce = sin(scene->windAngle) * 0.02;
 	tree->update();
 
 	///////////////////////////////////////////////////////////
@@ -127,7 +128,7 @@ void ofApp::draw(){
 	paperImg.draw(0, 0);
 	ofPopStyle();
 
-	//	Draw tree
+	//	Draw tree to buffer
 	treeBuffer.begin();
 	ofBackgroundGradient(ofColor(255, 255, 255, 2), ofColor(255, 255, 255, 2));
     tree->draw();
@@ -137,9 +138,7 @@ void ofApp::draw(){
 	forestBuffer.begin();
 	if(ofGetFrameNum() % 30 == 29)  ofBackgroundGradient(ofColor(0, 54, 104, 1), ofColor(0, 8, 13, 1)); 
 	forestBuffer.end();
-
 	forestBuffer.draw(0, 0);
-	treeBuffer.draw(0, 0);
 
 	//	Kinect data
 	//kDataImg.draw(0, 0);
@@ -151,6 +150,9 @@ void ofApp::draw(){
 	pop.draw();
 	popBuffer.end();
 	popBuffer.draw(0, 0);
+
+	//	Draw tree over
+	treeBuffer.draw(0, 0);
 }
 
 //--------------------------------------------------------------
@@ -182,8 +184,9 @@ void ofApp::createColorPools() {
 	scene->leaf_colors.addColor(ofColor::fromHex(0xAD001A));
 	scene->leaf_colors.addColor(ofColor::fromHex(0xD64550));
 	scene->leaf_colors.addColor(ofColor::fromHex(0xEA9E8D));
-	scene->leaf_colors.addColor(ofColor::fromHex(0xFDF0D5));
 	scene->leaf_colors.addColor(ofColor::fromHex(0xC6D8D3));
+	scene->leaf_colors.addColor(ofColor::fromHex(0xFDF0D5));
+
 }
 
 //--------------------------------------------------------------

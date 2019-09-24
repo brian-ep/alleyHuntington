@@ -25,7 +25,7 @@ void main()
 	vec4 col = texture(colIn, texCoordVarying.st).rgba;
 
     //	Circle shading
-	col.a *= circle(gl_PointCoord, 0.45);
+	col.a *= circle(gl_PointCoord, 0.5);
 
     fragColor = col;
 }
