@@ -52,7 +52,7 @@ tNode::tNode(tNode* parent, SceneSettings* scene, float x, float y, float angleO
 			branchB = new tNode(this, scene, xB, yB, newAngle, length * ofRandom(0.80, 0.95));
 		}
 		else {
-			if (length + ofRandom(3 * length) > 20) {
+			if (length + ofRandom(3 * length) > 12) {
 				float direction = ofRandom(1.0) > 0.5 ? 1.0f : -1.0f;
 				float newAngle = direction * ofRandom(0.4) + (fmod(angle, PI) > HALF_PI ? -1 / length : 1 / length);
 				branchA = new tNode(this, scene, xB, yB, newAngle, length * ofRandom(0.96, 1.0));

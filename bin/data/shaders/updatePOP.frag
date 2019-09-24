@@ -68,9 +68,10 @@ void main()
     vec3 force = vec3(0.0);
 
     //  Noise
-    float angle = noise(vec3(pos.x * 0.02 + 0.1 * time, pos.y * 0.02, 1.0)) * TWO_PI * 0.5;
+    float angle = noise(vec3(pos.x * 0.01, pos.y * 0.01,  0.01 * time)) * TWO_PI * 4.0;
     vec3 dir = vec3(cos(angle), sin(angle), 0);
-    force += 256.0 * dir;
+    float amp = 64.0 + 256.0 * (1.0 - col.a);
+    force += amp * dir;
 
     //  gravity
     force -= vec3(0.0, 20.0 * 9.82, 0.0);
@@ -82,7 +83,9 @@ void main()
     //  accelerate
     vel += 0.016 * force;
 
-    vel.y = -150.0 * variance;
+    //  Limits
+    vel.x = clamp(vel.x, -75.0, 75.0);
+    vel.y = -75.0 * variance;
 
     //  move
     pos += elapsed * vel;
@@ -109,8 +112,14 @@ void main()
     vel *= 0.995;
 
     //  Interaction
-    if(kVal == 1.0) col.a = 0.75  * clamp(2.0 * variance, 0.0, 1.0);
-    else col.a *= 0.995 * clamp(2.0 * variance, 0.0, 1.0);
+    if(kVal == 1.0){
+        col.a = 0.9  * variance;
+        state = 8.0 * variance * variance;
+    }
+    else {
+        col.a *= 0.996 * clamp(2.49 * variance, 0.0, 1.0);
+        state *= 0.998;
+    }
     
     posOut = vec4(pos, 1.0);
     velOut = vec4(vel, variance);

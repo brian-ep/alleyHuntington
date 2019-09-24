@@ -15,8 +15,8 @@ uniform sampler2DRect kData;
 
 float circle(in vec2 _st, in float _radius){
     vec2 dist = _st-vec2(0.5);
-	return 1.-smoothstep(0,
-                         _radius+0.05,
+	return 1.-smoothstep(_radius * 0.9,
+                         _radius,
                          dot(dist,dist)*4.0);
 }
 

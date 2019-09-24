@@ -5,6 +5,7 @@ void ofApp::setup(){
 
 	//	OF Settings
 	ofSetWindowShape(1920, 1200);
+	//ofSetFullscreen(true);
 	ofSetFrameRate(60);
 	ofSetBackgroundAuto(false);
 	ofEnableAntiAliasing();
@@ -41,7 +42,7 @@ void ofApp::setup(){
 	createNewTree();
 
 	//	POP
-	pop.setup(512 * 512);
+	pop.setup(512 * 1024);
 	pop.updateColorPool(scene->leaf_colors);
 
 	ofFbo::Settings s;
@@ -125,7 +126,7 @@ void ofApp::draw(){
 	ofBackgroundGradient(ofColor(255, 255, 255, 255), ofColor(200, 200, 200, 255));
 	ofPushStyle();
 	ofSetColor(255, 255, 255, 64);
-	paperImg.draw(0, 0);
+	paperImg.draw(0, 0, width, height);
 	ofPopStyle();
 
 	//	Draw tree to buffer
@@ -146,7 +147,7 @@ void ofApp::draw(){
 	//	Rain
 	ofSetColor(255);
 	popBuffer.begin();
-	ofBackgroundGradient(ofColor(37, 27, 52, 8), ofColor(8, 4, 13, 8));
+	ofBackgroundGradient(ofColor(37, 27, 52, 2), ofColor(8, 4, 13, 2));
 	pop.draw();
 	popBuffer.end();
 	popBuffer.draw(0, 0);
