@@ -68,13 +68,14 @@ void main()
     vec3 force = vec3(0.0);
 
     //  Noise
-    float angle = noise(vec3(pos.x * 0.01, pos.y * 0.01,  0.01 * time)) * TWO_PI * 4.0;
+    float angle = noise(vec3(pos.x * 0.02, pos.y * 0.02,  0.1 * time)) * TWO_PI * 2.0;
+    angle += 0.25 * TWO_PI;
     vec3 dir = vec3(cos(angle), sin(angle), 0);
-    float amp = 64.0 + 256.0 * (1.0 - col.a);
+    float amp = 64.0 + 128.0 * (1.0 - col.a);
     force += amp * dir;
 
     //  gravity
-    force -= vec3(0.0, 20.0 * 9.82, 0.0);
+    //rforce -= vec3(0.0, r9.82, 0.0);
 
      //  Variance
     float variance = texture(velIn, texCoordVarying.st).a;
@@ -112,9 +113,9 @@ void main()
     vel *= 0.995;
 
     //  Interaction
-    if(kVal == 1.0){
-        col.a = 0.9  * variance;
-        state = 8.0 * variance * variance;
+    if(kVal.r == 1.0){
+        col.a = 0.8  * variance;
+        state = 6.0 * variance * variance;
     }
     else {
         col.a *= 0.996 * clamp(2.49 * variance, 0.0, 1.0);

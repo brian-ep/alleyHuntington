@@ -15,6 +15,10 @@ void ofApp::setup(){
 	//	Window settings
     width   = ofGetWidth();
     height  = ofGetHeight();
+
+	//	Geometry
+	plane.set(width, height);
+	plane.mapTexCoords(0, 0, width, height);
     
 	//	Scene
     scene = new SceneSettings;
@@ -61,18 +65,17 @@ void ofApp::setup(){
 	ofClear(0);
 	popBuffer.end();
 
-	//	CV
-	grayImage.allocate(512, 424);
-	grayThreshNear.allocate(512, 424);
-	grayThreshFar.allocate(512, 424);
-	kDataImg.allocate(width, height);
+	//	Spout
+	spoutIn.setup();
 
-	nearThreshold = 5;
-	farThreshold = 0;
+	//	Interaction data
+	kShaderPath = "shaders/interaction";
+	kShader.load(kShaderPath);
 
-	//	Kinect
-	kinect.open();
-	kinect.initDepthSource();
+	kBuffer.allocate(width, height, GL_RGBA);
+	kBuffer.begin();
+	ofClear(0);
+	kBuffer.end();
 }
 
 //--------------------------------------------------------------
@@ -91,31 +94,24 @@ void ofApp::update(){
 	tree->windForce = sin(scene->windAngle) * 0.02;
 	tree->update();
 
-	///////////////////////////////////////////////////////////
-	//	Kinect
-	kinect.update();
+	//	Update Spout
+	spoutIn.updateTexture();
 
-	//	CV
-	if (kinect.isFrameNew())
-	{
-		grayImage.setFromPixels(kinect.getDepthSource()->getPixels());
-
-		grayThreshNear = grayImage;
-		grayThreshFar = grayImage;
-		grayThreshNear.threshold(nearThreshold, true);
-		grayThreshFar.threshold(farThreshold);
-		cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-
-		grayImage.flagImageChanged();
-
-		kDataImg.scaleIntoMe(grayImage, CV_INTER_LINEAR);
-		kDataImg.updateTexture();
-
-		//	Update POP interaction data
-		pop.updateKinectData(kDataImg.getTexture());
-	}
+	//	Update interaction data
+	kBuffer.begin();
+	ofClear(0);
+	kShader.begin();
+	kShader.setUniform2f("res", width, height);
+	kShader.setUniformTexture("kTex", spoutIn.getTexture(), 0);
+	ofPushMatrix();
+	ofTranslate(width / 2, height / 2);
+	plane.draw();
+	ofPopMatrix();
+	kShader.end();
+	kBuffer.end();
 
 	//	Update POP
+	pop.updateKinectData(kBuffer.getTexture());
 	pop.update();
 }
 
@@ -144,16 +140,22 @@ void ofApp::draw(){
 	//	Kinect data
 	//kDataImg.draw(0, 0);
 
-	//	Rain
+	//	POP
 	ofSetColor(255);
 	popBuffer.begin();
-	ofBackgroundGradient(ofColor(37, 27, 52, 2), ofColor(8, 4, 13, 2));
+	ofBackgroundGradient(ofColor(37, 27, 52, 1), ofColor(8, 4, 13, 1));
 	pop.draw();
 	popBuffer.end();
 	popBuffer.draw(0, 0);
 
 	//	Draw tree over
 	treeBuffer.draw(0, 0);
+
+	//	Kinect Data
+	if (bDrawK)
+		kBuffer.draw(0, 0, width, height);
+	if (bDrawSpout)
+		spoutIn.getTexture().draw(0, height, width, -height);
 }
 
 //--------------------------------------------------------------
@@ -161,7 +163,7 @@ void ofApp::createNewTree(){
     
     if(scene == NULL) scene = new SceneSettings;
     
-    tree = new tNode(NULL, scene, width/2 + ofRandom(-0.5 * width, 0.5 * width), height, ofRandom(0.8 * PI, 1.2 * PI), height / 20 * ofRandom(0.4, 1.25));
+    tree = new tNode(NULL, scene, width/2 + ofRandom(-0.5 * width, 0.5 * width), height, ofRandom(0.8 * PI, 1.2 * PI), height / 20 * ofRandom(0.5, 1.25));
 }
 
 //--------------------------------------------------------------
@@ -203,7 +205,9 @@ void ofApp::newTree(){
 
 //--------------------------------------------------------------
 void ofApp::reloadShaders() {
-
+	//	Interaction shader
+	kShader.unload();
+	kShader.load(kShaderPath);
 }
 
 //--------------------------------------------------------------
@@ -211,9 +215,15 @@ void ofApp::keyPressed(int key){
 
 	switch (key)
 	{
+	case 'k':
+		bDrawK = !bDrawK;
+		break;
 	case 'r':
 		reloadShaders();
 		pop.loadShaders();
+		break;
+	case 's':
+		bDrawSpout = !bDrawSpout;
 		break;
 	default:
 		break;

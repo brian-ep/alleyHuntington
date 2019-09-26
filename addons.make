@@ -1,2 +1,2 @@
-ofxKinectForWindows2
 ofxOpenCv
+ofxSpout2

@@ -26,7 +26,7 @@ tNode::tNode(tNode* parent, SceneSettings* scene, float x, float y, float angleO
 	colorIndex = (int) ofRandom((float) scene->branch_colors.numColors());
 
 	if (parent == nullptr)
-		leafScale = ofMap(length, 24, 75, 0.2, 1.0);
+		leafScale = ofMap(length, 30, 75, 0.2, 1.0);
 	else
 		leafScale = parent->leafScale;
     
@@ -52,7 +52,7 @@ tNode::tNode(tNode* parent, SceneSettings* scene, float x, float y, float angleO
 			branchB = new tNode(this, scene, xB, yB, newAngle, length * ofRandom(0.80, 0.95));
 		}
 		else {
-			if (length + ofRandom(3 * length) > 12) {
+			if (length + ofRandom(3 * length) > 9) {
 				float direction = ofRandom(1.0) > 0.5 ? 1.0f : -1.0f;
 				float newAngle = direction * ofRandom(0.4) + (fmod(angle, PI) > HALF_PI ? -1 / length : 1 / length);
 				branchA = new tNode(this, scene, xB, yB, newAngle, length * ofRandom(0.96, 1.0));
@@ -87,11 +87,11 @@ void tNode::update(){
 		angle = 0.5 * prevAngle + 0.5 * targetAngle;
 		prevAngle = angle;
         
-		float newGrowth = growth + 0.025 * parent->growth;
+		float newGrowth = growth + 0.03 * parent->growth;
         growth = min(newGrowth, 1.0f);
     }
     else {
-        float newGrowth = growth + 0.025;
+        float newGrowth = growth + 0.015;
         growth = min(newGrowth, 1.0f);
     }
     
@@ -136,8 +136,7 @@ void tNode::draw(){
         ofTranslate(x, y);
         ofRotateRad(-angle);
       	ofSetColor(255);
-        //leafBuffer.draw(-leafBuffer.getWidth() * ofClamp(growth, 0.05, 1.0) * leafScale / 2, -leafBuffer.getHeight() * ofClamp(growth, 0.05, 1.0) * leafScale / 2, leafBuffer.getWidth() * ofClamp(growth, 0.05, 1.0) * leafScale, leafBuffer.getHeight() * ofClamp(growth, 0.05, 1.0) * leafScale);
-		leafBuffer.draw(-leafBuffer.getWidth() * ofClamp(growth, 0.1, 1.0) / 2, -leafBuffer.getHeight() * ofClamp(growth, 0.1, 1.0) / 2, leafBuffer.getWidth() * ofClamp(growth, 0.1, 1.0), leafBuffer.getHeight() * ofClamp(growth, 0.1, 1.0));
+		leafBuffer.draw(-leafBuffer.getWidth() * ofClamp(growth, 0.15, 1.0) / 2, -leafBuffer.getHeight() * ofClamp(growth, 0.15, 1.0) / 2, leafBuffer.getWidth() * ofClamp(growth, 0.15, 1.0), leafBuffer.getHeight() * ofClamp(growth, 0.15, 1.0));
 		ofPopMatrix();
     }
 }
@@ -158,7 +157,7 @@ void tNode::drawLeafBuffer(){
 	int h = w;
 
 	//	Allocate
-	leafBuffer.allocate(w, h, GL_RGBA16F_ARB, 4);
+	leafBuffer.allocate(w, h, GL_RGBA16F_ARB, 8);
 	leafBuffer.begin();
 	ofClear(0, 0, 0, 0);
 	leafBuffer.end();
@@ -192,7 +191,7 @@ void tNode::drawLeafBuffer(){
 		ofDrawCircle(x, y, r);
 
 		ofNoFill();
-		ofSetLineWidth(2.0);
+		ofSetLineWidth(4.0);
 		color.setHue(ofRandom(0, 255));
 		color.setSaturation(ofRandom(0, 255));
 		color.setBrightness(ofRandom(0, 255));

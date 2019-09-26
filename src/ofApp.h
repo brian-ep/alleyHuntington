@@ -8,8 +8,9 @@
 #include "tNode.h"
 
 //	Addons
-#include "ofxKinectForWindows2.h"
+//#include "ofxKinectForWindows2.h"
 #include "ofxOpenCv.h"
+#include "ofxSpout2Receiver.h"
 
 class ofApp : public ofBaseApp{
 
@@ -48,7 +49,10 @@ public:
 	//	Drawing
 	ofFbo treeBuffer;
 	ofFbo forestBuffer;
+	
 	bool bAddTreeToForest = false;
+
+	ofPlanePrimitive plane;
 
 	//	Rain
 	POP pop;
@@ -57,16 +61,27 @@ public:
 	//	Images
 	ofImage paperImg;
 
+	//	Spout
+	ofxSpout2::Receiver spoutIn;
+	ofTexture spoutTex;
+	bool bDrawSpout = false;
+
+	//	Interaction data
+	ofShader kShader;
+	string kShaderPath;
+	ofFbo kBuffer;
+	bool bDrawK = false;
+
 	/////////////////////////////////////////////////////////////
 	//	Kinect
-	ofxKFW2::Device kinect;
+	//ofxKFW2::Device kinect;
 
-	//	Open CV
-	ofxCvGrayscaleImage grayImage; // grayscale depth image
-	ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
-	ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
-	ofxCvGrayscaleImage kDataImg;
+	////	Open CV
+	//ofxCvGrayscaleImage grayImage; // grayscale depth image
+	//ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
+	//ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
+	//ofxCvGrayscaleImage kDataImg;
 
-	int nearThreshold;
-	int farThreshold;
+	//int nearThreshold;
+	//int farThreshold;
 };
