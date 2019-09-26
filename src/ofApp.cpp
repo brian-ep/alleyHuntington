@@ -5,7 +5,7 @@ void ofApp::setup(){
 
 	//	OF Settings
 	ofSetWindowShape(1920, 1200);
-	//ofSetFullscreen(true);
+	ofSetFullscreen(true);
 	ofSetFrameRate(60);
 	ofSetBackgroundAuto(false);
 	ofEnableAntiAliasing();
@@ -215,6 +215,14 @@ void ofApp::keyPressed(int key){
 
 	switch (key)
 	{
+	case 'f':
+		ofSetFullscreen(true);
+		ofHideCursor();
+		break;
+	case 'g':
+		ofSetFullscreen(false);
+		ofShowCursor();
+		break;
 	case 'k':
 		bDrawK = !bDrawK;
 		break;
